@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Mapping
-
-from self_healing_vio.health import VioHealthEstimate
+from typing import Any, Mapping
 
 
 class RecoveryAction(str, Enum):
@@ -37,7 +35,7 @@ class RecoveryDecision:
 class RecoveryPolicy:
     """Compatibility policy used by the original controller tests."""
 
-    def decide(self, health: VioHealthEstimate) -> RecoveryDecision:
+    def decide(self, health: Any) -> RecoveryDecision:
         if health.level == "healthy":
             return RecoveryDecision("continue_nominal_tracking", 1, "VIO health is nominal")
         if health.level == "warning":
