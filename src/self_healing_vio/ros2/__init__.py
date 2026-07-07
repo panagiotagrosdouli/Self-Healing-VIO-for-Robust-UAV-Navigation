@@ -5,6 +5,7 @@ and launch files are planned integration work and should not be interpreted as a
 completed real-time robotics stack.
 """
 
+from .interfaces import HealthMonitorMessage, RecoveryCommand
 from .nodes import HealthMonitorNodeConfig
 
-__all__ = ["HealthMonitorNodeConfig"]
+__all__ = ["HealthMonitorMessage", "RecoveryCommand", "HealthMonitorNodeConfig"]
