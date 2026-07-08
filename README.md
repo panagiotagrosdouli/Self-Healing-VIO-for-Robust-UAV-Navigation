@@ -10,14 +10,14 @@
 
 ---
 
-## PhD-Level Research Positioning
+## Research Positioning
 
-SHIELD-VIO is the flagship robotics repository in my research portfolio. It frames localization robustness as a **closed-loop autonomy problem**: a robot should not only estimate its pose, but also monitor the health of that estimate, reason about degradation causes, and select recovery actions before localization failure becomes catastrophic.
+SHIELD-VIO studies localization robustness as a **closed-loop autonomy problem**: a robot should not only estimate its pose, but also monitor the health of that estimate, reason about degradation causes, and select recovery actions before localization failure becomes catastrophic.
 
-The project is intended to support future graduate research in:
+The project is aligned with research questions in:
 
 - robust visual-inertial odometry,
-- self-healing robotic perception,
+- reliability-aware robotic perception,
 - uncertainty-aware autonomy,
 - UAV localization under degradation,
 - safety-aware field robotics.
@@ -70,8 +70,8 @@ Planned work includes:
 ```text
 configs/default.yaml              Prototype thresholds and policy settings
 docs/RESEARCH_FRAMEWORK.md        Formal technical framework
-docs/PHD_PROPOSAL.md              PhD-style research proposal
-docs/V4RL_ALIGNMENT.md            Academic alignment with V4RL themes
+docs/RESEARCH_DIRECTION.md        Research direction and open questions
+docs/VISION_ROBOTICS_ALIGNMENT.md Robotic perception and UAV-reliability context
 paper/abstract.md                 Conference-style abstract
 paper/contributions.md            Publication-style contributions
 src/self_healing_vio/             Python prototype package
@@ -102,8 +102,8 @@ Expected demo output includes detector scores, diagnosis probabilities, selected
 ## Research Documents
 
 - [Research Framework](docs/RESEARCH_FRAMEWORK.md)
-- [PhD Proposal](docs/PHD_PROPOSAL.md)
-- [V4RL Alignment](docs/V4RL_ALIGNMENT.md)
+- [Research Direction](docs/RESEARCH_DIRECTION.md)
+- [Robotic Perception Alignment](docs/VISION_ROBOTICS_ALIGNMENT.md)
 - [Roadmap](ROADMAP.md)
 - [Conference Abstract](paper/abstract.md)
 - [Publication Contributions](paper/contributions.md)
@@ -135,22 +135,15 @@ SHIELD-VIO is part of a broader research direction on robust autonomy under unce
 - [`Uncertainty-Aware Navigation`](https://github.com/panagiotagrosdouli/uncertainty-aware-navigation): controlled baseline experiments for risk-aware mobile robot planning.
 - [`SafeCrossAI`](https://github.com/panagiotagrosdouli/SafeCrossAI): safety-aware trajectory prediction and intelligent intersection research.
 
-Together, these projects support a coherent PhD research narrative: **robots should estimate uncertainty, detect degradation, plan around risk, and recover before safety is compromised.**
+Together, these projects support a coherent research direction: **robots should estimate uncertainty, detect degradation, plan around risk, and recover before safety is compromised.**
 
 ---
 
-## Research Positioning
+## Scope and Claims
 
-SHIELD-VIO is intended as a PhD-level research direction at the intersection of:
+SHIELD-VIO does not claim that VIO can be made failure-proof. It investigates whether VIO can become more transparent, diagnosable, and recoverable under degradation.
 
-- visual-inertial navigation
-- robust perception
-- autonomous UAVs
-- uncertainty-aware autonomy
-- perception-aware robotics
-- field robotics
-
-The project does not claim that VIO can be made failure-proof. It investigates whether VIO can become more transparent, diagnosable, and recoverable under degradation.
+Completed work, prototype components, and planned extensions are separated explicitly so that experimental claims remain reproducible and technically conservative.
 
 ---
 
