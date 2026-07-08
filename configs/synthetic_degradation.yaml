@@ -1,0 +1,8 @@
+seed: 11
+scenarios:
+  - motion_blur
+  - low_light
+  - feature_dropout
+  - imu_bias_drift
+  - aggressive_motion
+status: prototype_synthetic_only

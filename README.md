@@ -1,167 +1,151 @@
-# SHIELD-VIO
+# SHIELD-VIO: Safety-Aware Visual-Inertial Odometry
 
-**Self-Healing Intelligent Estimation and Localization for Degradation-aware Visual-Inertial Odometry**
+[![CI](https://github.com/panagiotagrosdouli/SHIELD-VIO/actions/workflows/ci.yml/badge.svg)](https://github.com/panagiotagrosdouli/SHIELD-VIO/actions)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![Status](https://img.shields.io/badge/status-research%20prototype-orange)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-> Can a Visual-Inertial Odometry system know when it is becoming unreliable, diagnose why, and select a recovery action before catastrophic localization failure?
+**SHIELD-VIO studies how a Visual-Inertial Odometry system can detect unreliable state estimates and shield downstream navigation from unsafe perception failures.**
 
-[![Python Prototype](https://img.shields.io/badge/prototype-Python-blue)]()
-[![ROS2](https://img.shields.io/badge/ROS2-planned-lightgrey)]()
-[![License](https://img.shields.io/badge/license-MIT-lightgrey)]()
+> Research question: **How can a VIO system detect when its state estimate becomes unreliable and shield downstream navigation from unsafe perception failures?**
 
----
+This repository is intentionally conservative: it does **not** claim state-of-the-art performance, does **not** invent benchmark numbers, and separates implemented code, prototypes, and planned work.
 
-## Research Positioning
-
-SHIELD-VIO studies localization robustness as a **closed-loop autonomy problem**: a robot should not only estimate its pose, but also monitor the health of that estimate, reason about degradation causes, and select recovery actions before localization failure becomes catastrophic.
-
-The project is aligned with research questions in:
-
-- robust visual-inertial odometry,
-- reliability-aware robotic perception,
-- uncertainty-aware autonomy,
-- UAV localization under degradation,
-- safety-aware field robotics.
-
-The current repository is a Python research prototype and documentation scaffold. It does **not** claim a complete production VIO system; instead, it establishes the monitoring, diagnosis, and recovery layer that can later be integrated with systems such as OpenVINS, VINS-Fusion, ORB-SLAM3, or Kimera-VIO.
-
----
+<p align="center"><img src="assets/demo.gif" alt="SHIELD-VIO generated demo" width="760" /></p>
 
 ## Motivation
 
-Visual-Inertial Odometry (VIO) is a foundation of GPS-denied UAV autonomy. However, practical VIO systems can degrade silently under motion blur, low texture, illumination changes, sensor inconsistency, aggressive motion, and estimator divergence. SHIELD-VIO studies VIO robustness as a closed-loop autonomy problem: monitor degradation, diagnose likely cause, and select a recovery action.
+Accurate pose estimation alone is not enough for safe autonomy. A downstream planner can behave unsafely when it receives a confident-looking but degraded VIO pose. SHIELD-VIO adds introspection: visual tracking quality, IMU consistency, covariance health, innovation consistency, normalized risk, and a safety shield that can request low-confidence mode, slow-down, hover/halt, or relocalization.
 
-This repository currently contains a **research framework and executable Python prototype**. ROS2/C++ integration and full VIO backend coupling are planned work, not completed claims.
+## Scientific formulation
 
----
+The nominal IMU-centric state is
 
-## Implemented Prototype
-
-The current prototype includes:
-
-- normalized detector interface with health scores in `[0, 1]`
-- `ImageEntropyDetector`
-- `MotionBlurDetector`
-- `FeatureCollapseDetector`
-- `IMUConsistencyDetector`
-- `ReprojectionErrorMonitor`
-- `NavigationHealthIndex` in `[0, 100]`
-- `BayesianFailureDiagnosis`
-- `RuleBasedRecoveryPolicy`
-- synthetic degradation demo
-- unit tests for detector ranges, NHI range, diagnosis normalization, and recovery actions
-
----
-
-## Planned ROS2 / C++ Integration
-
-Planned work includes:
-
-- ROS2 health monitor node
-- ROS2 messages for health vector, diagnosis posterior, NHI, and recovery action
-- integration with OpenVINS, VINS-Fusion, ORB-SLAM3, or Kimera-VIO
-- real-time C++ detector implementations
-- dataset benchmark runner
-- UAV/simulator fault-injection experiments
-
----
-
-## Repository Structure
-
-```text
-configs/default.yaml              Prototype thresholds and policy settings
-docs/RESEARCH_FRAMEWORK.md        Formal technical framework
-docs/RESEARCH_DIRECTION.md        Research direction and open questions
-docs/VISION_ROBOTICS_ALIGNMENT.md Robotic perception and UAV-reliability context
-paper/abstract.md                 Conference-style abstract
-paper/contributions.md            Publication-style contributions
-src/self_healing_vio/             Python prototype package
-scripts/demo_health_monitor.py    Runnable synthetic degradation demo
-tests/                            Unit tests
-ROADMAP.md                        Staged implementation roadmap
+```math
+x = \{p_{WI}, v_{WI}, q_{WI}, b_a, b_g\}
 ```
 
----
+with error state
 
-## Getting Started
+```math
+\delta x = [\delta p, \delta v, \delta\theta, \delta b_a, \delta b_g]^T \in \mathbb{R}^{15}.
+```
+
+The scaffold propagates state and covariance with IMU measurements, applies linear visual measurement updates, computes `NEES`, `NIS`, covariance trace/log-det/conditioning, visual quality, risk, and shield decisions. See [`docs/MATHEMATICAL_FORMULATION.md`](docs/MATHEMATICAL_FORMULATION.md).
+
+## Architecture
+
+```mermaid
+flowchart LR
+  CAM[Camera] --> FE[Visual front-end]
+  IMU[IMU] --> PROP[IMU propagation]
+  FE --> UPD[Visual update]
+  PROP --> ESKF[Error-state EKF]
+  UPD --> ESKF
+  ESKF --> UNC[Uncertainty monitor]
+  FE --> VQ[Visual quality]
+  IMU --> IQ[IMU consistency]
+  UNC --> RISK[Risk score]
+  VQ --> RISK
+  IQ --> RISK
+  RISK --> SHIELD[Safety shield]
+  SHIELD --> NAV[Planner / controller]
+```
+
+## Safety shield
+
+```mermaid
+flowchart TD
+  R[Risk + visual quality + tracking status] --> A{Tracking failed?}
+  A -- yes --> REL[request relocalization / halt]
+  A -- no --> B{Risk critical?}
+  B -- yes --> HALT[hover or halt]
+  B -- no --> C{Risk warning?}
+  C -- yes --> SLOW[slow down]
+  C -- no --> D{Near threshold?}
+  D -- yes --> LOW[low-confidence mode]
+  D -- no --> NOM[nominal]
+```
+
+## Installation
 
 ```bash
 git clone https://github.com/panagiotagrosdouli/SHIELD-VIO.git
 cd SHIELD-VIO
 python -m venv .venv
 source .venv/bin/activate
-pip install numpy pytest
-export PYTHONPATH=$PWD/src
-python scripts/demo_health_monitor.py
+python -m pip install -e '.[dev]'
 pytest -q
 ```
 
-Expected demo output includes detector scores, diagnosis probabilities, selected recovery action, and Navigation Health Index over a synthetic degradation sequence.
+## Quick start
 
----
+```bash
+python scripts/run_synthetic_experiment.py --scenario nominal --seed 7 --out results/synthetic/nominal
+python scripts/run_synthetic_experiment.py --scenario motion_blur --seed 11 --out results/synthetic/motion_blur
+python scripts/make_demo_gif.py
+```
 
-## Research Documents
+Synthetic outputs are demos and sanity checks, **not** benchmark evidence.
 
-- [Research Framework](docs/RESEARCH_FRAMEWORK.md)
-- [Research Direction](docs/RESEARCH_DIRECTION.md)
-- [Robotic Perception Alignment](docs/VISION_ROBOTICS_ALIGNMENT.md)
-- [Roadmap](ROADMAP.md)
-- [Conference Abstract](paper/abstract.md)
-- [Publication Contributions](paper/contributions.md)
+## Dataset examples
 
----
+Real dataset integration is documented/scaffolded but not benchmarked yet.
 
-## Core Research Questions
+```bash
+# EuRoC placeholder run until the real loader is implemented
+python scripts/run_synthetic_experiment.py --scenario nominal --out results/euroc_placeholder
 
-1. Can VIO degradation be represented as a continuous health signal before tracking loss?
-2. Can onboard signals infer a useful posterior over degradation causes?
-3. Can diagnosis-conditioned recovery improve uptime and estimator consistency?
-4. Can a Navigation Health Index provide an interpretable autonomy-facing reliability signal?
-5. Can learned recovery policies outperform rule-based policies under domain shift while preserving safety constraints?
+# TUM-VI placeholder run until the real loader is implemented
+python scripts/run_synthetic_experiment.py --scenario aggressive_motion --out results/tumvi_placeholder
 
----
+# ROS2 planned/prototype
+ros2 launch shield_vio_ros2 shield_monitor.launch.py
+```
 
-## Navigation Health Index
+Datasets are not redistributed. See [`docs/DATASETS.md`](docs/DATASETS.md).
 
-The Navigation Health Index is a scalar in `[0, 100]` computed from normalized health scores and optional risk penalties. It is intended as an interpretable reliability signal for planners, safety monitors, and human operators.
+## Implemented / Prototype / Planned
 
----
+| Area | Status | Evidence |
+|---|---:|---|
+| Quaternion utilities and PSD covariance checks | Implemented | `shield_vio/core/math.py`, tests |
+| Error-state EKF propagation/update scaffold | Implemented | `shield_vio/estimation/eskf.py`, tests |
+| IMU noise model and consistency checks | Implemented | `shield_vio/imu/model.py` |
+| Visual quality score | Implemented | `shield_vio/frontend/features.py` |
+| Covariance, NEES, NIS, risk normalization | Implemented | `shield_vio/uncertainty/metrics.py` |
+| Safety shield fallback policy | Implemented | `shield_vio/safety/shield.py` |
+| ATE/RPE/failure-detection metrics | Implemented | `shield_vio/evaluation/metrics.py` |
+| Synthetic degradation experiments | Prototype | `scripts/run_synthetic_experiment.py` |
+| GIF/video export | Prototype | `scripts/make_demo_gif.py` |
+| EuRoC, TUM-VI, KITTI benchmarks | Planned | `docs/DATASETS.md`, `docs/EVALUATION_PROTOCOL.md` |
+| ROS2 node/RViz | Prototype/Planned | `shield_vio/ros2/README.md` |
+| Next.js website | Planned scaffold | `website/README.md` |
 
-## Relationship to Other Research Repositories
+## Metrics
 
-SHIELD-VIO is part of a broader research direction on robust autonomy under uncertainty:
+ATE, RPE, NEES, NIS, covariance trace, log determinant, condition number, failure-detection precision/recall, false alarm rate, time-to-detection, tracking failure rate, shield activation rate, and runtime FPS.
 
-- [`Adaptive Multi-Modal SLAM`](https://github.com/panagiotagrosdouli/Adaptive-Multi-Modal-SLAM-with-Uncertainty-Aware-Sensor-Fusion): adaptive sensor fusion and SLAM robustness under perceptual degradation.
-- [`DynNav`](https://github.com/panagiotagrosdouli/DynNav-Dynamic-Navigation-Rerouting-in-Unknown-Environments): risk-sensitive navigation and replanning under map uncertainty.
-- [`Uncertainty-Aware Navigation`](https://github.com/panagiotagrosdouli/uncertainty-aware-navigation): controlled baseline experiments for risk-aware mobile robot planning.
-- [`SafeCrossAI`](https://github.com/panagiotagrosdouli/SafeCrossAI): safety-aware trajectory prediction and intelligent intersection research.
+## Baselines
 
-Together, these projects support a coherent research direction: **robots should estimate uncertainty, detect degradation, plan around risk, and recover before safety is compromised.**
+Planned baselines: standard VIO without shield, fixed uncertainty threshold, visual-quality monitor, SHIELD-VIO uncertainty-aware monitor, and oracle degradation label scaffold. Results are **Pending** until run reproducibly.
 
----
+## Limitations
 
-## Scope and Claims
-
-SHIELD-VIO does not claim that VIO can be made failure-proof. It investigates whether VIO can become more transparent, diagnosable, and recoverable under degradation.
-
-Completed work, prototype components, and planned extensions are separated explicitly so that experimental claims remain reproducible and technically conservative.
-
----
+This is not a production VIO backend. The current estimator is a research scaffold; real EuRoC/TUM-VI/KITTI numbers, hardware validation, ROS2 deployment, and closed-loop navigation experiments are pending.
 
 ## Citation
 
 ```bibtex
-@misc{shieldvio2026,
-  title        = {SHIELD-VIO: Self-Healing Intelligent Estimation and Localization
-                  for Degradation-aware Visual-Inertial Odometry},
-  author       = {Grosdouli, Panagiota},
-  year         = {2026},
-  howpublished = {\url{https://github.com/panagiotagrosdouli/SHIELD-VIO}},
-  note         = {Research prototype}
+@misc{grosdouli2026shieldvio,
+  title  = {SHIELD-VIO: Safety-Aware Visual-Inertial Odometry with Uncertainty Monitoring and Failure Shielding},
+  author = {Grosdouli, Panagiota},
+  year   = {2026},
+  note   = {Research prototype; no state-of-the-art claim},
+  url    = {https://github.com/panagiotagrosdouli/SHIELD-VIO}
 }
 ```
 
----
+## Future MSc/PhD extensions
 
-## License
-
-MIT, unless otherwise specified. Dataset licenses remain with their respective providers.
+Conformal failure prediction, uncertainty calibration, shield-aware MPC, active perception recovery, ROS2/hardware validation, and time-to-detection evaluation under safety-critical navigation constraints.

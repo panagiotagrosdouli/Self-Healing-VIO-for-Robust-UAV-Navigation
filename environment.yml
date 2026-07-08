@@ -1,9 +1,0 @@
-name: shield-vio
-channels:
-  - conda-forge
-dependencies:
-  - python=3.11
-  - numpy
-  - pytest
-  - pyyaml
-  - pip

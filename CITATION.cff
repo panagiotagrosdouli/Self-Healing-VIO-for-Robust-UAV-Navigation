@@ -1,16 +1,9 @@
 cff-version: 1.2.0
-title: "SHIELD-VIO: Self-Healing Intelligent Estimation and Localization for Degradation-aware Visual-Inertial Odometry"
-message: "If you use this research prototype, please cite it using this metadata."
-type: software
+title: "SHIELD-VIO: Safety-Aware Visual-Inertial Odometry with Uncertainty Monitoring and Failure Shielding"
 authors:
   - family-names: Grosdouli
     given-names: Panagiota
-repository-code: "https://github.com/panagiotagrosdouli/SHIELD-VIO"
 year: 2026
 license: MIT
-keywords:
-  - visual-inertial odometry
-  - SLAM
-  - robust autonomy
-  - UAV navigation
-  - uncertainty estimation
+repository-code: "https://github.com/panagiotagrosdouli/SHIELD-VIO"
+message: "This is a research prototype; cite only as software, not as benchmark evidence."
