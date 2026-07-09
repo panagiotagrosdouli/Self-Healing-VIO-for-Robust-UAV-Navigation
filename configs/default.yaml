@@ -1,0 +1,29 @@
+# SHIELD-VIO Synthetic Demo configuration
+# These settings generate synthetic, deterministic VIO data only.
+label: Synthetic Demo
+random_seed: 7
+duration_s: 20.0
+dt: 0.05
+visual_dt: 0.2
+imu_accel_noise: 0.055
+visual_noise: 0.055
+bias_walk: 0.0015
+risk_thresholds:
+  warning: 0.45
+  slow_down: 0.62
+  halt: 0.82
+visual_quality_threshold: 0.35
+output_dir: results/synthetic_demo
+degradation_events:
+  - name: feature dropout
+    start: 6.0
+    end: 9.0
+    severity: 0.70
+  - name: low-light
+    start: 10.0
+    end: 13.0
+    severity: 0.65
+  - name: motion blur
+    start: 14.0
+    end: 17.0
+    severity: 0.85
