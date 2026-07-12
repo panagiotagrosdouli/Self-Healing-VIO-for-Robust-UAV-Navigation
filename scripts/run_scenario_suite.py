@@ -5,8 +5,6 @@ import argparse
 import json
 from pathlib import Path
 
-import numpy as np
-
 from shield_vio.evaluation.statistics import summarize
 from shield_vio.simulation.synthetic_vio import SyntheticVIOConfig, run_synthetic_vio
 
