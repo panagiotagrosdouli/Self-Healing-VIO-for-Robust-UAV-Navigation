@@ -1,0 +1,31 @@
+{
+  "title": "SHIELD-VIO: Estimator Introspection, Calibrated Failure Prediction, and Protective Navigation for Visual-Inertial Autonomy",
+  "description": "Open-source research toolkit for estimator introspection, calibrated visual-inertial failure prediction, domain-shift awareness, and supervisory navigation shielding. The current release provides research prototypes and deterministic synthetic validation; it does not claim production-quality VIO, real-world calibration, hardware safety, state-of-the-art performance, or formal guarantees.",
+  "creators": [
+    {
+      "name": "Grosdouli, Panagiota"
+    }
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "version": "0.2.0",
+  "keywords": [
+    "visual-inertial odometry",
+    "visual-inertial navigation",
+    "state estimation",
+    "uncertainty calibration",
+    "failure prediction",
+    "domain shift",
+    "safe autonomy",
+    "robotics"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/panagiotagrosdouli/SHIELD-VIO",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ],
+  "notes": "Synthetic validation and adapter tests must not be represented as public-dataset, simulator, hardware, production, or formal-safety evidence."
+}
