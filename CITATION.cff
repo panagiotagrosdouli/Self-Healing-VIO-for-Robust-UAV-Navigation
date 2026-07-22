@@ -1,9 +1,33 @@
 cff-version: 1.2.0
-title: "SHIELD-VIO: Safety-Aware Visual-Inertial Odometry with Uncertainty Monitoring and Failure Shielding"
+message: >-
+  If you use SHIELD-VIO in research, please cite the software release below.
+  Results produced by the repository should be described with their validation
+  level; synthetic evidence is not a substitute for public-dataset, simulator,
+  hardware, or formal-safety validation.
+title: "SHIELD-VIO: Estimator Introspection, Calibrated Failure Prediction, and Protective Navigation for Visual-Inertial Autonomy"
+type: software
 authors:
   - family-names: Grosdouli
     given-names: Panagiota
-year: 2026
+    alias: panagiotagrosdouli
+version: 0.2.0
+date-released: 2026-07-22
 license: MIT
 repository-code: "https://github.com/panagiotagrosdouli/SHIELD-VIO"
-message: "This is a research prototype; cite only as software, not as benchmark evidence."
+url: "https://github.com/panagiotagrosdouli/SHIELD-VIO"
+abstract: >-
+  SHIELD-VIO is an open-source research toolkit for estimator introspection,
+  calibrated visual-inertial failure prediction, domain-shift awareness,
+  and supervisory navigation shielding. The current release provides research
+  prototypes and deterministic synthetic validation; it does not claim a
+  production-quality VIO backend, real-world calibration, hardware safety,
+  state-of-the-art performance, or formal guarantees.
+keywords:
+  - visual-inertial odometry
+  - visual-inertial navigation
+  - state estimation
+  - uncertainty calibration
+  - failure prediction
+  - domain shift
+  - safe autonomy
+  - robotics
